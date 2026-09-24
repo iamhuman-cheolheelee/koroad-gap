@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""보고서 삽입용 벡터 그림 생성 — 인쇄 해상도를 위해 래스터 대신 SVG 로 직접 그린다"""
+"""보고서 삽입용 벡터 그림 생성 — 인쇄 해상도를 위해 래스터 대신 SVG 로 직접 생성한다"""
 import json, os, math
 
 d    = os.path.dirname(os.path.abspath(__file__))
-FIG  = os.path.join(d, '..', '03-증빙', '그림')
+FIG  = os.path.join(d, '..', 'figures')
 os.makedirs(FIG, exist_ok=True)
-R    = json.load(open(os.path.join(d, '..', '04-데이터', 'result.json'), encoding='utf-8'))
-SIDO = json.load(open(os.path.join(d, '..', '06-데모', 'sido.json'), encoding='utf-8'))
+R    = json.load(open(os.path.join(d, '..', 'data', 'result.json'), encoding='utf-8'))
+SIDO = json.load(open(os.path.join(d, '..', 'src', 'sido.json'), encoding='utf-8'))
 
 ONLY, OVER = '#C2410C', '#94A3B8'
 INK, INK2, INK3, LINE = '#111827', '#374151', '#6B7280', '#E5E7EB'
@@ -52,7 +52,7 @@ def fig_map():
     out.append(f'<circle cx="300" cy="{ly}" r="4" fill="{OVER}" fill-opacity="0.6"/>'
                f'<text x="311" y="{ly+4}" {F} font-size="12" fill="{INK3}">'
                f'양쪽 목록에 모두 있는 지점 {R["summary"]["over"]}곳</text>')
-    save('그림1-전국지도.svg', ''.join(out), W, H)
+    save('fig1-map.svg', ''.join(out), W, H)
 
 # ── 그림 2. 임계값 분포 ────────────────────────────────────────────
 def fig_bins():
@@ -89,7 +89,7 @@ def fig_bins():
     for i, (t, c) in enumerate((('노인 목록에만 있음', ONLY), ('양쪽 목록에 모두 있음', OVER))):
         out.append(f'<rect x="{X0+i*210}" y="{Y0+44}" width="11" height="11" fill="{c}" rx="2"/>'
                    f'<text x="{X0+i*210+17}" y="{Y0+54}" {F} font-size="12.5" fill="{INK2}">{t}</text>')
-    save('그림2-임계값분포.svg', ''.join(out), W, H)
+    save('fig2-threshold.svg', ''.join(out), W, H)
 
 # ── 그림 3. 연도별 추세 ────────────────────────────────────────────
 def fig_trend():
@@ -116,7 +116,7 @@ def fig_trend():
     out.append(f'<line x1="{X0}" y1="{Y0}" x2="{X0+PW}" y2="{Y0}" stroke="#D1D5DB"/>')
     out.append(f'<text x="0" y="20" {F} font-size="14" font-weight="700" fill="{INK}">'
                f'노인 다발지역 중 일반 목록에 오르지 못한 지점의 비율</text>')
-    save('그림3-연도추세.svg', ''.join(out), W, H)
+    save('fig3-trend.svg', ''.join(out), W, H)
 
 # ── 그림 4. 분석 파이프라인 ────────────────────────────────────────
 def fig_pipe():
@@ -150,7 +150,7 @@ def fig_pipe():
     out.append(f'<text x="{x0:.1f}" y="196" {F} font-size="11.5" fill="{INK3}">'
                f'전 과정이 결정적(deterministic)이다. 난수·학습 파라미터가 없으므로 같은 입력에 '
                f'항상 같은 결과가 나온다.</text>')
-    save('그림4-파이프라인.svg', ''.join(out), W, H)
+    save('fig4-pipeline.svg', ''.join(out), W, H)
 
 fig_map(); fig_bins(); fig_trend(); fig_pipe()
 print('완료')

@@ -43,6 +43,6 @@ for f in src['features']:
         feats.append({'type':'Feature','properties':{},
                       'geometry':{'type':'MultiPolygon','coordinates':keep}})
 out = {'type':'FeatureCollection','features':feats}
-p = os.path.join(os.path.dirname(__file__), '..', '06-데모', 'sido.json')
+p = os.path.join(os.path.dirname(__file__), '..', 'src', 'sido.json')
 json.dump(out, open(p,'w',encoding='utf-8'), separators=(',',':'))
 print('시도', len(feats), '·', os.path.getsize(p), 'bytes')

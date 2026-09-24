@@ -4,8 +4,8 @@
 """
 import csv, math, json, collections, os
 
-BASE = os.path.join(os.path.dirname(__file__), '..', '04-데이터')
-OUT  = os.path.join(os.path.dirname(__file__), '..', '04-데이터')
+BASE = os.path.join(os.path.dirname(__file__), '..', 'data')
+OUT  = os.path.join(os.path.dirname(__file__), '..', 'data')
 R_MATCH = 150.0   # 두 목록 모두 반경 100m 원 → 중심 간 150m 이내를 동일 지점으로 본다
 
 def load(fn):
@@ -34,13 +34,15 @@ def match(A, B, R=R_MATCH):
     """A 의 각 지점에 대해 B 에서 R 이내 최근접을 찾는다. 격자 인덱스로 O(n)."""
     G = collections.defaultdict(list)
     for i, b in enumerate(B):
-        G[(round(b['lo'], 2), round(b['la'], 2))].append(i)
+        G[(round(b['lo'] * 100), round(b['la'] * 100))].append(i)   # 정수 격자 키(약 1km)
     paired, alone = [], []
     for a in A:
         best = None
-        for dx in (-0.01, 0.0, 0.01):
-            for dy in (-0.01, 0.0, 0.01):
-                for i in G[(round(a['lo'], 2) + dx, round(a['la'], 2) + dy)]:
+        # 2026-09-23 수정: 실수 키(round(x,2)+0.01)는 부동소수 오차로 인접 격자를 놓쳤다 → 정수 키
+        cx, cy = round(a['lo'] * 100), round(a['la'] * 100)
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                for i in G[(cx + dx, cy + dy)]:
                     d = dist(a, B[i])
                     if d <= R and (best is None or d < best[1]):
                         best = (i, d)
@@ -171,4 +173,4 @@ result['summary'] = dict(year=Y, only=len(ONLY), over=len(OVER), old=len(O), ped
                          leth_only=lethal(ONLY), leth_over=lethal(OVER))
 with open(os.path.join(OUT, 'result.json'), 'w', encoding='utf-8') as f:
     json.dump(result, f, ensure_ascii=False)
-print('\n→ 04-데이터/result.json 저장')
+print('\n→ data/result.json 저장')

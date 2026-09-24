@@ -3,331 +3,764 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>두 개의 목록 — 보행노인·일반 보행자 사고다발지역 고시 대조</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<meta name="color-scheme" content="light">
+<title>두 개의 목록: 보행노인·보행자 사고다발지역 고시 대조 도구</title>
+<style>/*__LEAFLET_CSS__*/</style>
 <style>
 :root{
-  --only:#C2410C;      /* 노인 전용 — 노인 목록에만 있다 */
-  --rev:#1D4ED8;       /* 일반 전용 — 일반 목록에만 있다 */
-  --over:#94A3B8;      /* 양쪽 목록에 모두 있다 */
-  --ink:#111827; --ink2:#374151; --ink3:#6B7280;
-  --bg:#FCFCFB; --card:#FFFFFF; --line:#E5E7EB;
+  --only:#C2410C; --rev:#1D4ED8; --over:#94A3B8;
+  --ink:#111827; --ink2:#374151; --ink3:#5B6472;
+  --bg:#FCFCFB; --card:#FFFFFF; --line:#E5E7EB; --soft:#F6F6F4;
+  --ok:#15803D; --bad:#B91C1C;
 }
 *{box-sizing:border-box}
+html{color-scheme:light}
 body{margin:0;background:var(--bg);color:var(--ink);
   font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
   line-height:1.65;-webkit-text-size-adjust:100%}
-.wrap{max-width:1180px;margin:0 auto;padding:0 20px 72px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--ink);color:#fff;padding:8px 14px;z-index:2000}
+.skip:focus{left:8px;top:8px}
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+main.wrap{padding-bottom:72px}
 header{border-bottom:1px solid var(--line);background:var(--card)}
-header .wrap{padding-top:34px;padding-bottom:28px}
-.eyebrow{font-size:12px;letter-spacing:.14em;color:var(--ink3);font-weight:700;margin:0 0 10px}
-h1{font-size:31px;line-height:1.3;margin:0 0 14px;letter-spacing:-.02em}
+header .wrap{padding-top:22px;padding-bottom:26px}
+.orgs{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+.orgs img{display:block;height:26px;width:auto}
+.orgs .sep{width:1px;height:20px;background:var(--line)}
+.orgs .hosted{font-size:12px;color:var(--ink3)}
+.badge{margin-left:auto;font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:999px;
+  background:#ECFDF3;color:var(--ok);border:1px solid #BBF7D0;white-space:nowrap}
+.badge.bad{background:#FEF2F2;color:var(--bad);border-color:#FECACA}
+.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--ink3);font-weight:700;margin:0 0 8px}
+h1{font-size:34px;line-height:1.28;margin:0 0 10px;letter-spacing:-.025em}
+.hero-stats{display:flex;gap:14px;flex-wrap:wrap;margin:22px 0 20px}
+.hero-stats>div{background:#FFF7F2;border:1px solid #FED7C3;border-radius:12px;padding:14px 20px 12px;min-width:190px}
+.hero-stats .n{font-size:46px;font-weight:800;line-height:1.05;letter-spacing:-.04em;color:var(--only);font-variant-numeric:tabular-nums}
+.hero-stats .n small{font-size:20px;margin-left:2px}
+.hero-stats .l{font-size:13.5px;color:var(--ink2);margin-top:6px;font-weight:600}
+.cta{font:inherit;font-size:16px;font-weight:800;padding:13px 24px;border-radius:12px;border:0;background:var(--only);color:#fff;cursor:pointer;
+  box-shadow:0 6px 18px rgba(194,65,12,.28)}
+.cta:hover{background:#9A3412}
+.hero-meta{font-size:12.5px;color:var(--ink3);margin:0 0 0 14px;display:inline-block}
 h1 b{color:var(--only)}
-.lede{font-size:16px;color:var(--ink2);margin:0;max-width:74ch}
-.lede b{color:var(--ink);font-weight:700}
-.byline{margin-top:18px;font-size:13px;color:var(--ink3)}
+.lede{font-size:16px;color:var(--ink2);margin:0;max-width:76ch}
+.lede b{color:var(--ink)}
+.byline{margin-top:14px;font-size:13px;color:var(--ink3)}
 .byline b{color:var(--ink2)}
 
-section{margin-top:44px}
+.guide{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px;padding:0;list-style:none}
+.guide li{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--ink2)}
+.guide li b{display:block;color:var(--ink);font-size:14px;margin-bottom:2px}
+.guide li span.n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;
+  background:var(--ink);color:#fff;font-size:12px;font-weight:800;margin-right:6px;vertical-align:1px}
+details.terms{margin-top:12px;font-size:13.5px;color:var(--ink2)}
+details.terms summary{cursor:pointer;font-weight:700;color:var(--ink)}
+details.terms dl{display:grid;grid-template-columns:130px 1fr;gap:6px 14px;margin:10px 0 0}
+details.terms dt{font-weight:700;color:var(--ink)}
+details.terms dd{margin:0}
+
+.bar{position:sticky;top:0;z-index:1000;background:rgba(252,252,251,.96);backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;gap:18px 26px;align-items:center;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctl>.lab{font-size:12px;font-weight:700;color:var(--ink3);letter-spacing:.04em}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button,.btn{font:inherit;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink2);cursor:pointer;min-height:34px}
+.seg button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:700}
+.rad{display:flex;align-items:center;gap:8px}
+.rad input{width:150px;accent-color:var(--ink)}
+.rad output{font-weight:800;font-variant-numeric:tabular-nums;min-width:52px}
+#shareMsg{font-size:12.5px;color:var(--ok)}
+
+section{margin-top:40px;scroll-margin-top:80px}
 h2{font-size:19px;margin:0 0 6px;letter-spacing:-.01em}
-.sub{font-size:14px;color:var(--ink3);margin:0 0 18px;max-width:78ch}
+h2 .no{color:var(--ink3);margin-right:4px}
+.sub{font-size:14px;color:var(--ink3);margin:0 0 16px;max-width:80ch}
+.sub b{color:var(--ink2)}
 
 .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.kpi>div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 16px 14px}
-.kpi .n{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.kpi>div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:15px 16px 13px}
+.kpi .n{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
 .kpi .n small{font-size:15px;font-weight:700;margin-left:2px}
 .kpi .l{font-size:12.5px;color:var(--ink3);margin-top:6px}
 .kpi .accent .n{color:var(--only)}
+.eq{margin-top:12px;font-size:13.5px;color:var(--ink2);background:var(--card);border:1px dashed #D1D5DB;
+  border-radius:8px;padding:9px 14px;font-variant-numeric:tabular-nums}
+.eq b{color:var(--ink)}
 
-.yrs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.yrs button{font:inherit;font-size:13.5px;font-weight:600;padding:7px 15px;border-radius:999px;
-  border:1px solid var(--line);background:var(--card);color:var(--ink2);cursor:pointer}
-.yrs button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
-
-#map{height:470px;border:1px solid var(--line);border-radius:10px;background:#EEF2F5}
-.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--ink2)}
-.legend button.lg{font:inherit;font-size:13px;color:var(--ink2);background:none;border:0;
-  padding:2px 0;cursor:pointer}
+#map{height:520px;border:1px solid var(--line);border-radius:10px;background:#EEF2F5}
+.mapgrid{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+.mapwrap{position:relative}
+.runbox{position:absolute;inset:0;z-index:900;display:grid;place-items:center;background:rgba(241,245,249,.55);border-radius:10px}
+.runbox[hidden]{display:none}
+.runbox>div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px 24px;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.12);max-width:340px}
+.runbox p{margin:0 0 12px;font-size:14px;color:var(--ink2)}
+.counter{position:absolute;right:14px;top:12px;z-index:800;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 14px;
+  font-size:13px;color:var(--ink2);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.counter b{font-size:24px;color:var(--only);font-variant-numeric:tabular-nums;margin-right:3px}
+.orig{font-size:13px}
+.orig h3{font-size:14.5px;margin:0 0 4px}
+.orig .src{font-size:11.5px;font-weight:700;color:var(--ink3);letter-spacing:.04em;margin:12px 0 4px}
+.orig table{font-size:12.5px;border:1px solid var(--line);border-radius:8px}
+.orig td{padding:5px 8px}.orig td:first-child{color:var(--ink3);width:74px;white-space:nowrap}
+.orig tr.hl td{background:#FFF1E6;font-weight:700}
+.verdict{margin-top:12px;padding:10px 12px;border-radius:8px;background:var(--soft);font-size:13.5px;font-variant-numeric:tabular-nums;line-height:1.55}
+.verdict b{color:var(--only)}
+.legend{display:flex;gap:6px 18px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--ink2);align-items:center}
+.legend button.lg{font:inherit;font-size:13px;color:var(--ink2);background:none;border:0;padding:4px 0;cursor:pointer;min-height:30px}
 .legend button.lg[aria-pressed=false]{color:#9CA3AF;text-decoration:line-through}
 .legend button.lg[aria-pressed=false] i{opacity:.22}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;
   vertical-align:-1px;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.18)}
+.legend .hint{color:var(--ink3);font-size:12.5px}
 
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:26px}
-figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
-figcaption{font-size:12.5px;color:var(--ink3);margin-top:12px;line-height:1.55}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+figure{margin:0}
+figcaption{font-size:12.5px;color:var(--ink3);margin-top:10px;line-height:1.55}
 figcaption b{color:var(--ink2)}
 
+.sim{display:grid;grid-template-columns:1.05fr 1fr;gap:22px}
+.simout{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.simout>div{background:var(--soft);border-radius:8px;padding:10px 12px}
+.simout .n{font-size:26px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--only)}
+.simout .l{font-size:12px;color:var(--ink3)}
+.simout .d{font-size:12px;font-weight:700;color:var(--ink2)}
+.say{margin-top:14px;font-size:14px;color:var(--ink2);line-height:1.6}
+.say b{color:var(--ink)}
+.hbar{display:grid;grid-template-columns:150px 1fr 56px;gap:8px;align-items:center;font-size:12.5px;margin:6px 0}
+.hbar .t{height:16px;background:#F1F1EF;border-radius:4px;overflow:hidden}
+.hbar .t i{display:block;height:100%;background:var(--only);border-radius:4px}
+.hbar.cur{font-weight:800}
+.hbar.cur .t{outline:2px solid var(--ink);outline-offset:1px}
+.hbar .v{text-align:right;font-variant-numeric:tabular-nums}
+
 table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card)}
-th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line)}
-th{font-size:12px;color:var(--ink3);font-weight:700;letter-spacing:.02em;
-  border-bottom:1.5px solid var(--line);white-space:nowrap}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
+th{font-size:12px;color:var(--ink3);font-weight:700;border-bottom:1.5px solid var(--line);white-space:nowrap}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
-tbody tr:hover{background:#FAFAF9}
-.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:4px;
-  background:#FEF0E7;color:var(--only)}
+th button{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:2px 0;cursor:pointer}
+th[aria-sort] button::after{content:" ↕";color:#C0C4CC}
+th[aria-sort=descending] button::after{content:" ▼";color:var(--ink)}
+th[aria-sort=ascending] button::after{content:" ▲";color:var(--ink)}
+tbody tr.go{cursor:pointer}
+tbody tr.go:hover,tbody tr.go:focus{background:#FFF7F2}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+.scroll table{border:0}
+.tbl-max{max-height:520px;overflow:auto}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:4px;white-space:nowrap}
+.t0{background:#FEF0E7;color:var(--only)}.t1{background:#F1F5F9;color:#475569}.t2{background:#EFF4FF;color:var(--rev)}
+.ok{color:var(--ok);font-weight:800}.ng{color:var(--bad);font-weight:800}
+td.cur,th.cur{background:#FFF7F2}
+
+.filters{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}
+.filters label{display:flex;flex-direction:column;font-size:12px;font-weight:700;color:var(--ink3);gap:4px}
+.filters select,.filters input{font:inherit;font-size:14px;padding:7px 10px;border:1px solid #D1D5DB;border-radius:8px;
+  background:#fff;color:var(--ink);min-height:38px}
+.filters input{width:220px}
+#sdn{font-size:13.5px;color:var(--ink2);margin:0 0 10px}
+#sdn b{color:var(--ink)}
 
 .note{font-size:13px;color:var(--ink3);background:#F8F8F7;border:1px solid var(--line);
-  border-left:3px solid var(--ink3);border-radius:0 8px 8px 0;padding:14px 16px;margin-top:20px}
+  border-left:3px solid var(--ink3);border-radius:0 8px 8px 0;padding:13px 16px;margin-top:18px}
 .note b{color:var(--ink2)}
-footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);
-  font-size:12.5px;color:var(--ink3);line-height:1.7}
+footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink3);line-height:1.75}
+footer b{color:var(--ink2)}
 a{color:#1D4ED8}
 .leaflet-popup-content{font-size:13px;line-height:1.55;margin:12px 14px}
 .leaflet-popup-content b{display:block;font-size:13.5px;margin-bottom:4px}
-@media(max-width:820px){
-  .kpi{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}
-  h1{font-size:24px}#map{height:360px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+@media(max-width:860px){
+  .kpi{grid-template-columns:1fr 1fr}.grid2,.sim,.mapgrid{grid-template-columns:1fr}
+  .hero-stats>div{min-width:0;flex:1 1 40%}.hero-stats .n{font-size:34px}.hero-meta{display:block;margin:10px 0 0}
+  .guide{grid-template-columns:1fr}
+  h1{font-size:23px}#map{height:360px}
+  .badge{margin-left:0}
+  details.terms dl{grid-template-columns:1fr}details.terms dd{margin-bottom:6px}
+  .bar .wrap{gap:8px 14px}
+  .rad input{width:120px}
+  .filters input{width:100%}.filters label{flex:1 1 140px}
+  .kpi .n{font-size:26px}
+  .hide-m{display:none}
+}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff;font-size:11pt}
+  .bar,.skip,#csv,#share,.legend .hint,details.terms summary::marker{display:none!important}
+  details.terms{display:block}details.terms dl{display:grid}
+  header{border:0}
+  section{break-inside:avoid-page;margin-top:22px}
+  #map{height:380px;break-inside:avoid}
+  .tbl-max{max-height:none;overflow:visible}
+  .scroll{overflow:visible}
+  .badge{border:1px solid #999}
+  a{color:inherit;text-decoration:none}
+  .card,.kpi>div{box-shadow:none}
 }
 </style>
 </head>
 <body>
+<a class="skip" href="#main">본문 바로가기</a>
 <header><div class="wrap">
-  <p class="eyebrow">AI와 함께하는 교통문제 해결을 위한 데이터 분석 공모전 · 폴라앱</p>
-  <h1>같은 기관이 만든 두 개의 목록은<br><b>서로 다른 절반</b>을 가리킨다</h1>
-  <p class="lede">한국도로교통공단은 보행자 사고다발지역을 <b>두 가지 기준</b>으로 각각 고시한다.
-  조건은 모두 같고 <b>임계값만 5건과 7건으로 다르다.</b> 그 한 칸의 차이 때문에,
-  노인이 다치고 죽은 지점 상당수가 일반 목록에는 <b>오르지 못한다.</b>
-  이 화면은 두 고시 목록의 좌표를 그대로 겹쳐 그 어긋남을 센 결과다.</p>
-  <p class="byline">데이터 <b>한국도로교통공단 교통사고정보개방시스템</b> 공개 데이터셋 ·
-  기준시점 <b>2022~2026년 고시분</b> · 원자료 <b>TAAS 교통사고분석시스템</b></p>
+  <div class="orgs">
+    <span class="hosted">주최</span>
+    <img src="/*__LOGO_SHE__*/" alt="재단법인 숲과나눔">
+    <span class="sep" aria-hidden="true"></span>
+    <img src="/*__LOGO_HANI__*/" alt="한겨레" style="height:22px">
+    <span class="badge" id="netBadge" role="status" title="이 페이지가 외부 서버에 보낸 요청 수를 실시간으로 센다">외부 요청 0건</span>
+  </div>
+  <p class="eyebrow">교통데이터 분석 공모전 · 팀 폴라앱</p>
+  <h1>보행노인 사고다발지역 <b id="hN">91곳</b>은<br>보행자 사고다발지역 목록에 없다</h1>
+  <p class="lede">두 목록은 사고 기준 건수만 다르다. 노인 목록은 <b>5건</b>, 보행자 목록은 <b>7건</b>부터 오른다.</p>
+  <div class="hero-stats" aria-label="2026년 고시, 매칭 반경 150m 기준 핵심 수치">
+    <div><div class="n" id="hA">91<small>곳</small></div><div class="l">보행자 목록에 없는 지점</div></div>
+    <div><div class="n" id="hB">31.3<small>%</small></div><div class="l">보행노인 다발지역 중 비율</div></div>
+    <div><div class="n" id="hC">24<small>명</small></div><div class="l" id="hCl">그 지점의 사망자 (중상 447명)</div></div>
+  </div>
+  <button class="cta" id="go" type="button">지도에서 91곳 열어 보기</button><span class="hero-meta">2026년 고시 · 반경 150m · 한국도로교통공단 공개 데이터</span>
+  <p class="byline">모든 계산은 이 파일 안에서 끝나며, 2022~2026년 고시분을 모두 담았다.</p>
+
+  <ol class="guide" aria-label="처음 온 분을 위한 3단계 사용법">
+    <li><b><span class="n">1</span>연도와 반경을 고른다</b>위쪽 막대에서 고시연도와 "같은 지점" 판정 거리를 바꾼다. 기본값은 2026년, 150m이다.</li>
+    <li><b><span class="n">2</span>지도와 시뮬레이터를 본다</b>주황 점이 노인 목록에만 있는 지점이다. 점을 누르면 두 목록의 원본 행이 옆에 나온다.</li>
+    <li><b><span class="n">3</span>관할을 골라 목록을 받는다</b>시도·시군구를 고르면 후보 표가 나온다. 행을 누르면 지도가 그 지점으로 간다. CSV로 받는다.</li>
+  </ol>
+  <details class="terms">
+    <summary>용어 풀이</summary>
+    <dl>
+      <dt>사고다발지역</dt><dd>최근 3년간 반경 100m 안에서 보행자 사망·중상 사고가 기준 건수 이상 난 곳이다. 한국도로교통공단이 매년 고시한다.</dd>
+      <dt>임계값</dt><dd>목록에 오르는 최소 사고 건수이다. 보행노인(65세 이상) 목록은 5건, 보행자 목록은 7건이다.</dd>
+      <dt>겹침</dt><dd>두 목록의 지점 중심이 매칭 반경(기본 150m) 안에 있으면 같은 곳으로 본다. 두 목록 모두 반경 100m 원으로 고시되므로 150m를 기본값으로 삼았다.</dd>
+      <dt>노인 목록에만 있음</dt><dd>보행노인 목록에는 있지만 반경 안에 보행자 목록 지점이 하나도 없는 곳이다. 이 도구가 찾는 대상이다.</dd>
+      <dt>일반 목록에만 있음</dt><dd>반대 방향으로, 보행자 목록에는 있지만 보행노인 목록에는 없는 곳이다.</dd>
+    </dl>
+  </details>
 </div></header>
 
-<div class="wrap">
-
-<section>
-  <h2>1. 어긋남의 규모</h2>
-  <p class="sub">연도를 바꾸면 아래 모든 수치와 지도가 함께 바뀐다.</p>
-  <div class="yrs" id="yrs"></div>
-  <div class="kpi">
-    <div class="accent"><div class="n" id="k1">–</div><div class="l">노인 전용 위험지점<br>일반 목록에 없다</div></div>
-    <div><div class="n" id="k2">–</div><div class="l">노인 다발지역 중 비율</div></div>
-    <div class="accent"><div class="n" id="k3">–</div><div class="l">그 지점에서 발생한<br>사망·중상자</div></div>
-    <div><div class="n" id="k4">–</div><div class="l">역방향 — 일반 목록에만<br>있는 지점</div></div>
+<div class="bar" role="region" aria-label="분석 조건">
+  <div class="wrap">
+    <div class="ctl"><span class="lab" id="yLab">고시연도</span><div class="seg" id="yrs" role="group" aria-labelledby="yLab"></div></div>
+    <div class="ctl rad"><label class="lab" for="rad">매칭 반경</label>
+      <input type="range" id="rad" min="0" max="3" step="1" value="1" aria-valuetext="150m">
+      <output id="radOut" for="rad">150m</output></div>
+    <div class="ctl"><button class="btn" id="share" type="button">현재 화면 링크 복사</button><span id="shareMsg" role="status" aria-live="polite"></span></div>
   </div>
+</div>
+
+<main class="wrap" id="main">
+
+<section id="s1" aria-labelledby="h1s">
+  <h2 id="h1s"><span class="no">1</span>어긋남의 규모</h2>
+  <p class="sub">연도와 반경을 바꾸면 이 페이지의 모든 수치·지도·표가 브라우저 안에서 다시 계산된다.</p>
+  <div class="kpi" aria-live="polite">
+    <div class="accent"><div class="n" id="k1">-</div><div class="l">노인 목록에만 있는 지점<br>보행자 목록에 없다</div></div>
+    <div><div class="n" id="k2">-</div><div class="l">보행노인 다발지역 중 비율</div></div>
+    <div class="accent"><div class="n" id="k3">-</div><div class="l" id="k3l">그 지점의 사망·중상자</div></div>
+    <div><div class="n" id="k4">-</div><div class="l">반대 방향: 보행자 목록에만<br>있는 지점</div></div>
+  </div>
+  <p class="eq" id="eq"></p>
 </section>
 
-<section>
-  <h2>2. 전국 지도</h2>
-  <p class="sub">점을 누르면 지점명과 사고·사망·중상 수가 나온다.
-  주황색이 <b>노인 목록에만 있는 지점</b>이다.</p>
-  <div id="map"></div>
+<section id="s2" aria-labelledby="h2s">
+  <h2 id="h2s"><span class="no">2</span>전국 지도</h2>
+  <p class="sub">주황색이 <b>노인 목록에만 있는 지점</b>이다. 점을 누르면 오른쪽에 두 목록의 원본 행과 거리 계산식이 나온다.
+  배경은 시도 경계만 넣었고 외부 지도 타일을 부르지 않는다.</p>
+  <div class="mapgrid">
+  <div>
+  <div class="mapwrap">
+    <div id="map" role="region" aria-label="사고다발지역 지도"></div>
+    <div class="counter" id="counter" hidden><b id="cN">0</b>곳 · 노인 목록에만 있음</div>
+    <div class="runbox" id="runbox"><div><p>회색 점은 두 목록의 지점 전체다.<br>좌표를 겹쳐 서로 다른 곳을 찾는다.</p>
+      <button class="cta" id="run" type="button">두 목록 대조 시작</button></div></div>
+  </div>
   <div class="legend">
     <button class="lg" data-k="0" aria-pressed="true"><i style="background:#C2410C"></i>노인 목록에만 있음</button>
-    <button class="lg" data-k="1" aria-pressed="true"><i style="background:#94A3B8"></i>양쪽 목록에 모두 있음</button>
-    <button class="lg" data-k="2" aria-pressed="true"><i style="background:#1D4ED8"></i>일반 목록에만 있음</button>
-    <span style="color:#6B7280">눌러서 켜고 끌 수 있다 · 점 크기 = 사고건수 · 테두리 굵은 점 = 사망자 발생</span>
+    <button class="lg" data-k="1" aria-pressed="true"><i style="background:#94A3B8"></i>두 목록에 모두 있음</button>
+    <button class="lg" data-k="2" aria-pressed="true"><i style="background:#1D4ED8"></i>보행자 목록에만 있음</button>
+    <span class="hint">눌러서 켜고 끈다 · 점 크기 = 사고건수 · 테두리 굵은 점 = 사망자 발생</span>
+  </div>
+  </div>
+  <aside class="card orig" id="orig" aria-live="polite" aria-label="원본 행 대조"></aside>
   </div>
 </section>
 
-<section>
-  <h2>3. 어긋남은 우연이 아니다 — 임계값이 만든 구조</h2>
-  <p class="sub">두 목록의 유일한 차이는 임계값이다. 노인 기준은 5건, 일반 기준은 7건.
-  아래 분포를 보면 노인 목록에만 있는 지점이 <b>어디에 몰려 있는지</b> 한눈에 보인다.</p>
+<section id="s3" aria-labelledby="h3s">
+  <h2 id="h3s"><span class="no">3</span>임계값 시뮬레이터: 기준을 바꾸면 몇 곳이 남나</h2>
+  <p class="sub">보행노인 목록에서 사고 <b>N건 이상</b>인 지점만 남기고, 그중 보행자 목록에 없는 곳을 센다.
+  N을 보행자 기준과 같은 7건으로 올렸을 때 거의 사라진다면, 어긋남은 <b>기준 차이</b>가 만든 것이다.</p>
+  <div class="sim">
+    <div class="card">
+      <div class="ctl"><span class="lab" id="nLab">보행노인 기준</span>
+        <div class="seg" id="nSeg" role="group" aria-labelledby="nLab"></div></div>
+      <div class="simout" aria-live="polite">
+        <div><div class="n" id="sN">-</div><div class="l">노인 목록에만 있는 지점</div><div class="d" id="sNd"></div></div>
+        <div><div class="n" id="sD">-</div><div class="l">사망자</div><div class="d" id="sDd"></div></div>
+        <div><div class="n" id="sS">-</div><div class="l">중상자</div><div class="d" id="sSd"></div></div>
+      </div>
+      <p class="say" id="say"></p>
+    </div>
+    <div class="card">
+      <div id="hbars" role="img" aria-label="기준별 노인 목록에만 있는 지점 수"></div>
+      <p class="say" id="uni"></p>
+    </div>
+  </div>
+</section>
+
+<section id="s4" aria-labelledby="h4s">
+  <h2 id="h4s"><span class="no">4</span>매칭 반경을 바꿔도 결론이 유지되나</h2>
+  <p class="sub">"같은 지점" 판정 거리를 100·150·200·300m로 바꿔 전 연도를 다시 계산한 값이다.
+  오른쪽 끝 열은 분석 코드가 따로 계산해 저장한 검증값(sensitivity.json)과 대조한 결과다.</p>
   <div class="grid2">
-    <figure>
-      <svg id="binChart" viewBox="0 0 520 300" width="100%" role="img"
-           aria-label="사고건수 구간별 지점 수 분포"></svg>
-      <figcaption><b>사고건수 구간별 지점 수.</b> 노인 목록에만 있는 지점은 거의 전부
-      <b>5~6건 구간</b>에 있다. 일반 기준의 임계값 7건에 구조적으로 못 미치는 구간이다.
-      이 어긋남은 통계적 우연이 아니라 <b>기준 설계의 직접적 결과</b>다.</figcaption>
-    </figure>
-    <figure>
-      <svg id="trendChart" viewBox="0 0 520 300" width="100%" role="img"
-           aria-label="연도별 노인 전용 위험지점 비율 추세"></svg>
-      <figcaption><b>연도별 추세.</b> 노인 다발지역 중 일반 목록에 없는 지점의 비율은
-      2022년 23.4%에서 <b>2026년 32.0%</b>로 늘었다. 어긋남은 해소되는 중이 아니라
-      <b>벌어지는 중</b>이다.</figcaption>
-    </figure>
+    <div class="scroll"><table id="radTbl" aria-describedby="radCap"></table></div>
+    <figure class="card"><svg id="binChart" viewBox="0 0 520 300" width="100%" role="img" aria-label="사고건수 구간별 지점 수"></svg>
+      <figcaption id="radCap"></figcaption></figure>
   </div>
-  <p class="note"><b>선정기준 원문.</b>
-  보행노인(2021년 이후 고시) — 최근 3년간 65세 이상 보행자 사망·중상 사고, 반경 100m 내 <b>5건 이상</b>.
-  일반 보행자 — 최근 3년간 보행자 사망·중상 사고, 반경 100m 내 <b>7건 이상</b>.
-  대상기간·반경·중증도 정의가 <b>완전히 동일</b>하므로 두 목록의 차이는 임계값 외의 요인으로 설명되지 않는다.</p>
 </section>
 
-<section>
-  <h2>4. 사망자가 발생했는데 일반 목록에 없는 지점</h2>
-  <p class="sub">선택한 연도에서 사망자가 발생한 <b>노인 전용 위험지점</b>이다.
-  사고건수가 7건에 못 미쳐 일반 기준 목록에는 오르지 않는다.</p>
-  <div style="overflow-x:auto"><table>
-    <thead><tr><th>시도·시군구</th><th>지점명</th>
-      <th class="num">사고</th><th class="num">사망</th><th class="num">중상</th><th></th></tr></thead>
-    <tbody id="tbl"></tbody>
+<section id="s5" aria-labelledby="h5s">
+  <h2 id="h5s"><span class="no">5</span>연도별 추세</h2>
+  <div class="grid2">
+    <figure class="card"><svg id="trendChart" viewBox="0 0 520 300" width="100%" role="img" aria-label="연도별 노인 목록에만 있는 지점 비율"></svg>
+      <figcaption id="trendCap"></figcaption></figure>
+    <div class="note" style="margin-top:0"><b>선정기준 원문</b><br>
+    보행노인 목록(2021년 이후 고시)은 최근 3년간 65세 이상 보행자 사망·중상 사고가 반경 100m 안에서 <b>5건 이상</b>인 곳이다.<br>
+    보행자 목록은 최근 3년간 보행자 사망·중상 사고가 반경 100m 안에서 <b>7건 이상</b>인 곳이다.<br><br>
+    대상기간·반경·중증도 정의가 같으므로 두 목록의 차이는 임계값 말고는 설명할 요인이 없다.
+    2020년 이전 보행노인 고시는 기준(1년·200m·3건)이 달라 비교에서 뺐다.</div>
+  </div>
+</section>
+
+<section id="s6" aria-labelledby="h6s">
+  <h2 id="h6s"><span class="no">6</span>우리 관할 후보 표</h2>
+  <p class="sub">시도와 시군구를 고르면 선택 조건의 지점이 나온다. 열 제목을 누르면 정렬되고,
+  행을 누르거나 Enter 키를 누르면 지도가 그 지점으로 이동한다. CSV는 지금 보이는 표 그대로 받는다.</p>
+  <div class="filters">
+    <label>시도<select id="sd"></select></label>
+    <label>시군구<select id="sg"></select></label>
+    <label>구분<select id="kd">
+      <option value="0">노인 목록에만 있음</option><option value="1">두 목록에 모두 있음</option>
+      <option value="2">보행자 목록에만 있음</option><option value="a">전체</option></select></label>
+    <label>지점명 검색<input id="q" type="search" placeholder="예: 시장, 사거리, 동문동" autocomplete="off"></label>
+    <button id="csv" class="btn primary" type="button">CSV 받기</button>
+  </div>
+  <p id="sdn" aria-live="polite"></p>
+  <div class="scroll tbl-max"><table>
+    <caption class="sr">관할 후보 지점 표</caption>
+    <thead><tr>
+      <th scope="col" data-s="sgg" aria-sort="none"><button type="button">시군구</button></th>
+      <th scope="col" data-s="nm" aria-sort="none"><button type="button">지점명</button></th>
+      <th scope="col" class="num" data-s="occ" aria-sort="none"><button type="button">사고</button></th>
+      <th scope="col" class="num" data-s="dth" aria-sort="descending"><button type="button">사망</button></th>
+      <th scope="col" class="num" data-s="se" aria-sort="none"><button type="button">중상</button></th>
+      <th scope="col" class="num hide-m" data-s="d" aria-sort="none"><button type="button">가장 가까운 상대 목록 지점</button></th>
+      <th scope="col">구분</th></tr></thead>
+    <tbody id="sdt"></tbody>
   </table></div>
 </section>
 
 <footer>
-  <b>출처</b> 한국도로교통공단 「보행노인 교통사고 다발지역」·「보행자 교통사고 다발지역」
-  (교통사고정보개방시스템 opendata.koroad.or.kr 공개 데이터셋, 원자료 TAAS 교통사고분석시스템).
-  공식 개방 데이터만 사용했으며 접근권한 우회·자동수집은 하지 않았다.<br>
-  <b>이용조건</b> 좌표계 EPSG 4326. 두 목록의 지점은 각각 반경 100m 원으로 고시되므로
-  중심 간 거리 <b>150m 이내</b>를 동일 지점으로 판정했다.<br>
-  <b>한계</b> 2020년 이전 보행노인 고시는 선정기준(1년·반경 200m·3건)이 달라 비교에서 제외했다.
-  배경 지도는 통계청 행정구역 경계(2018년 기준)를 간소화해 문서에 내장했으며, 외부 지도 서비스에 접속하지 않는다.<br>
-  <b>제작</b> 폴라앱 (팀장 이철희) · 분석 코드와 원자료는 보고서에 기재된 저장소에서 확인할 수 있다.
+  <b>데이터 출처</b> 한국도로교통공단의 「보행노인 교통사고 다발지역」과 「보행자 교통사고 다발지역」 공개 데이터셋을 썼다.
+  두 데이터셋은 교통사고정보개방시스템(opendata.koroad.or.kr)에 있다. 원자료는 TAAS 교통사고분석시스템이다.
+  공식 개방 데이터만 썼고 접근권한 우회나 자동수집은 하지 않았다.<br>
+  <b>기준시점</b> 2022~2026년 고시분을 쓰며, 각 연도 목록은 최근 3년 사고를 기준으로 한다. 자료는 2026-09-21에 내려받았다.<br>
+  <b>판정 방법</b> 좌표계는 EPSG 4326이다. 두 지점 중심 간 거리(위도 보정 평면 근사)가 매칭 반경 이내면 같은 곳으로 본다.
+  기본 반경은 150m이고 모든 쌍을 비교한다. 분석 코드 결과와 연도·반경별로 대조한 일치 여부는 4번 표에 나온다.<br>
+  <b>한계</b> 사고 건수는 고시 목록에 적힌 값이며 개별 사고 원자료가 아니다. 배경 지도는 통계청 행정구역 경계(2018년)를 간소화해 넣었다.
+  지도 라이브러리 Leaflet 1.9.4와 기관 로고도 파일 안에 넣어 외부 서버에 접속하지 않는다.<br>
+  <b>제작</b> 팀 폴라앱 (이철희 · 최윤진)
 </footer>
-</div>
+</main>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>/*__LEAFLET_JS__*/</script>
 <script>
+/* ---------- 외부 요청 감시 (5-5: 주장은 화면이 증명) ---------- */
+(function () {
+  let ext = 0;
+  const badge = document.getElementById('netBadge');
+  const isExt = u => { try { const x = new URL(u, location.href); return /^https?:$/.test(x.protocol) && x.origin !== location.origin; } catch (e) { return false; } };
+  const bump = () => { ext++; badge.textContent = '외부 요청 ' + ext + '건'; badge.classList.add('bad'); };
+  const f = window.fetch; if (f) window.fetch = function (u) { if (isExt(u && u.url || u)) bump(); return f.apply(this, arguments); };
+  const o = XMLHttpRequest.prototype.open; XMLHttpRequest.prototype.open = function (m, u) { if (isExt(u)) bump(); return o.apply(this, arguments); };
+  if (navigator.sendBeacon) { const b = navigator.sendBeacon.bind(navigator); navigator.sendBeacon = function (u, d) { if (isExt(u)) bump(); return b(u, d); }; }
+  try { new PerformanceObserver(l => l.getEntries().forEach(e => { if (isExt(e.name)) bump(); })).observe({type: 'resource', buffered: true}); } catch (e) {}
+  window.__extCount = () => ext;
+})();
+
 const DATA = /*__DATA__*/null;
 const SIDO = /*__SIDO__*/null;
+const SENS = /*__SENS__*/null;
 const YEARS = Object.keys(DATA).sort();
+const RADII = [100, 150, 200, 300];
+const NS_ = [5, 6, 7, 8];
 const C = ['#C2410C', '#94A3B8', '#1D4ED8'];
-const KIND = ['노인 목록에만 있음', '양쪽 목록에 있음', '일반 목록에만 있음'];
-let year = YEARS[YEARS.length - 1];
+const KIND = ['노인 목록에만 있음', '두 목록에 모두 있음', '보행자 목록에만 있음'];
+const SHORT = {'서울특별시':'서울','부산광역시':'부산','대구광역시':'대구','인천광역시':'인천','광주광역시':'광주','대전광역시':'대전',
+  '울산광역시':'울산','세종특별자치시':'세종','경기도':'경기','강원도':'강원','강원특별자치도':'강원','충청북도':'충북','충청남도':'충남',
+  '전라북도':'전북','전북특별자치도':'전북','전라남도':'전남','경상북도':'경북','경상남도':'경남','제주특별자치도':'제주'};
+const strip = s => s.replace(/\d+$/, '');
+const fmt = n => n.toLocaleString('ko-KR');
+
+/* ---------- 원자료 준비: 지점마다 상대 목록 최근접 거리를 한 번만 계산 ---------- */
+function dist(a, b) {   /* analyze.py dist() 와 같은 식: a 의 위도로 경도 보정 */
+  const dy = (a.la - b.la) * 111320.0;
+  const dx = (a.lo - b.lo) * 111320.0 * Math.cos(a.la * Math.PI / 180);
+  return Math.hypot(dx, dy);
+}
+const T0 = performance.now();
+const Y = {};
+for (const y of YEARS) {
+  const mk = (r, src, i) => {
+    const t = r[5].trim().split(/\s+/);
+    const sd = SHORT[strip(t[0])] || strip(t[0]);
+    const sg = t.length > 1 ? strip(t.slice(1).join(' ')) : sd;
+    return {lo: r[0], la: r[1], occ: r[2], dth: r[3], se: r[4], addr: r[5], nm: r[6], cas: r[7], sd, sg, src, id: y + src + i};
+  };
+  const O = DATA[y].O.map((r, i) => mk(r, 'O', i)), P = DATA[y].P.map((r, i) => mk(r, 'P', i));
+  for (const a of O) { let m = Infinity, nb = null; for (const b of P) { const d = dist(a, b); if (d < m) { m = d; nb = b; } } a.d = m; a.nb = nb; }
+  for (const a of P) { let m = Infinity, nb = null; for (const b of O) { const d = dist(a, b); if (d < m) { m = d; nb = b; } } a.d = m; a.nb = nb; }
+  Y[y] = {O, P};
+}
+const PREP_MS = performance.now() - T0;
+
+function classify(y, R) {
+  const {O, P} = Y[y];
+  const only = O.filter(a => a.d > R), over = O.filter(a => a.d <= R), rev = P.filter(a => a.d > R);
+  return {O, P, only, over, rev};
+}
+const sum = (L, k) => L.reduce((s, a) => s + a[k], 0);
+
+/* ---------- 상태 + URL hash ---------- */
+const S = {y: YEARS[YEARS.length - 1], r: 150, n: 5, sd: '전국', sg: '전체', kd: '0', q: '', sort: 'dth', dir: -1};
+let RUN = false, SEL = null;
+function readHash() {
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (location.hash.length > 1) RUN = true;
+  if (YEARS.includes(h.get('y'))) S.y = h.get('y');
+  if (RADII.includes(+h.get('r'))) S.r = +h.get('r');
+  if (NS_.includes(+h.get('n'))) S.n = +h.get('n');
+  for (const k of ['sd', 'sg', 'q', 'sort']) if (h.get(k) != null) S[k] = h.get(k);
+  if (['0', '1', '2', 'a'].includes(h.get('kd'))) S.kd = h.get('kd');
+  if (h.get('dir') === '1') S.dir = 1;
+}
+function writeHash() {
+  if (!RUN) return;
+  const h = new URLSearchParams({y: S.y, r: S.r, n: S.n, sd: S.sd, sg: S.sg, kd: S.kd, q: S.q, sort: S.sort, dir: S.dir});
+  history.replaceState(null, '', '#' + h.toString());
+}
 
 /* ---------- 지도 ---------- */
-const map = L.map('map', {scrollWheelZoom: false}).setView([36.4, 127.9], 7);
-L.geoJSON(SIDO, {style: {color: '#CBD5E1', weight: 1, fillColor: '#F1F5F9',
-  fillOpacity: 1, interactive: false}}).addTo(map);
-let layer = L.layerGroup().addTo(map);
-
-const shown = [true, true, true];
-const OPA = [0.9, 0.45, 0.5];
-
-function drawMap() {
-  layer.clearLayers();
-  /* 맥락(겹침·일반 전용)을 먼저, 주제(노인 전용)를 마지막에 그려 위로 올린다 */
-  for (const k of [1, 2, 0]) for (const p of DATA[year].pts) {
-    const [lo, la, occ, dth, se, sgg, nm, kind] = p;
-    if (kind !== k || !shown[kind]) continue;
-    L.circleMarker([la, lo], {
-      radius: (kind === 0 ? 4.2 : 3.2) + Math.min(occ, 12) * (kind === 0 ? 0.46 : 0.34),
-      color: '#fff', weight: dth > 0 && kind === 0 ? 2 : 1,
-      fillColor: C[kind], fillOpacity: OPA[kind]
-    }).bindPopup(
-      '<b>' + nm + '</b>' + sgg +
-      '<br>사고 ' + occ + '건 · 사망 ' + dth + '명 · 중상 ' + se + '명' +
-      '<br><span style="color:' + C[kind] + ';font-weight:700">' + KIND[kind] + '</span>'
-    ).addTo(layer);
-  }
+const map = L.map('map', {scrollWheelZoom: false, keyboard: true}).setView([36.2, 127.8], 7);
+L.geoJSON(SIDO, {style: {color: '#CBD5E1', weight: 1, fillColor: '#F1F5F9', fillOpacity: 1, interactive: false}}).addTo(map);
+const layer = L.layerGroup().addTo(map);
+const shown = [true, true, true], OPA = [0.9, 0.45, 0.5];
+const MK = new Map();
+let CUR;
+function kindOf(a) { return a.src === 'P' ? 2 : (a.d > S.r ? 0 : 1); }
+function popup(a) {
+  const k = kindOf(a);
+  return '<b>' + a.nm + '</b>' + a.sd + ' ' + a.sg + '<br>사고 ' + a.occ + '건 · 사망 ' + a.dth + '명 · 중상 ' + a.se + '명' +
+    '<br>상대 목록 최근접 ' + (a.d === Infinity ? '-' : Math.round(a.d) + 'm') +
+    '<br><span style="color:' + C[k] + ';font-weight:700">' + KIND[k] + '</span>';
 }
+function drawMap() {
+  layer.clearLayers(); MK.clear();
+  if (!RUN) {   /* 대조 전: 두 목록 전체를 회색으로 */
+    for (const a of CUR.O.concat(CUR.P)) L.circleMarker([a.la, a.lo], {radius: 3.4, color: '#fff', weight: 1, fillColor: '#94A3B8', fillOpacity: .5, interactive: false}).addTo(layer);
+    return;
+  }
+  const groups = [CUR.over, CUR.rev, CUR.only], ks = [1, 2, 0];
+  groups.forEach((G, gi) => {
+    const k = ks[gi]; if (!shown[k]) return;
+    for (const a of G) {
+      const m = L.circleMarker([a.la, a.lo], {
+        radius: (k === 0 ? 4.2 : 3.2) + Math.min(a.occ, 12) * (k === 0 ? 0.46 : 0.34),
+        color: '#fff', weight: a.dth > 0 && k === 0 ? 2 : 1, fillColor: C[k], fillOpacity: OPA[k]
+      }).bindPopup(() => popup(a)).on('click', () => showOrig(a)).addTo(layer);
+      MK.set(a.id, m);
+    }
+  });
+}
+function goTo(a) {
+  if (!RUN) runCompare();
+  const k = kindOf(a);
+  if (!shown[k]) { shown[k] = true; document.querySelector('.legend button[data-k="' + k + '"]').setAttribute('aria-pressed', 'true'); drawMap(); }
+  document.getElementById('map').scrollIntoView({behavior: 'smooth', block: 'center'});
+  map.setView([a.la, a.lo], 14);
+  const m = MK.get(a.id); if (m) m.openPopup();
+  showOrig(a);
+}
+/* ---------- 원본 행 대조 ---------- */
+function rowTbl(a, hl) {
+  return '<table><tbody>' +
+    '<tr><td>지점명</td><td>' + a.nm + '</td></tr><tr><td>위치</td><td>' + a.sd + ' ' + a.sg + '</td></tr>' +
+    '<tr' + (hl ? ' class="hl"' : '') + '><td>사고</td><td>' + a.occ + '건</td></tr>' +
+    '<tr><td>사망·중상</td><td>' + a.dth + '명 · ' + a.se + '명</td></tr>' +
+    '<tr><td>좌표</td><td>' + a.la.toFixed(5) + ', ' + a.lo.toFixed(5) + '</td></tr></tbody></table>';
+}
+function showOrig(a) {
+  SEL = a; const box = document.getElementById('orig');
+  if (!a) { box.innerHTML = '<h3>원본 행 대조</h3><p class="sub" style="margin:0">지도에서 점을 누르거나 아래 표에서 행을 누르면 두 목록의 원본 행이 여기에 나온다.</p>'; return; }
+  const self = a.src === 'O' ? '보행노인 목록' : '보행자 목록', other = a.src === 'O' ? '보행자 목록' : '보행노인 목록';
+  const k = kindOf(a), far = a.d > S.r;
+  box.innerHTML = '<h3>원본 행 대조</h3><div class="src">' + S.y + '년 ' + self + ' 원본</div>' + rowTbl(a, a.src === 'O') +
+    '<div class="src">가장 가까운 ' + other + ' 지점</div>' + (a.nb ? rowTbl(a.nb, false) : '<p>상대 목록 지점이 없다.</p>') +
+    '<div class="verdict">두 지점 거리 <b>' + fmt(Math.round(a.d)) + 'm</b> ' + (far ? '&gt;' : '≤') + ' 매칭 반경 ' + S.r + 'm<br>판정: <b style="color:' + C[k] + '">' + KIND[k] + '</b>' +
+    (a.src === 'O' && far && a.occ < 7 ? '<br>사고 ' + a.occ + '건이라 보행자 기준 7건에 못 미친다.' : '') + '</div>';
+}
+function pickDefault() { return CUR.only.slice().sort((a, b) => b.dth - a.dth || b.se - a.se || b.occ - a.occ)[0] || CUR.O[0]; }
+function runCompare() {
+  if (RUN) return; RUN = true;
+  document.getElementById('runbox').hidden = true;
+  const ctr = document.getElementById('counter'), cN = document.getElementById('cN'); ctr.hidden = false;
+  drawMap(); showOrig(pickDefault()); writeHash();
+  const oms = CUR.only.map(a => MK.get(a.id)).filter(Boolean), t0 = performance.now(), dur = 1400;
+  oms.forEach(m => m.setStyle({fillOpacity: 0, opacity: 0}));
+  (function step(t) {
+    const f = Math.min(1, (t - t0) / dur), n = Math.round(f * oms.length);
+    for (let i = 0; i < n; i++) oms[i].setStyle({fillOpacity: OPA[0], opacity: 1});
+    cN.textContent = n; if (f < 1) requestAnimationFrame(step);
+  })(t0);
+}
+document.getElementById('run').onclick = runCompare;
+document.getElementById('go').onclick = () => { document.getElementById('s2').scrollIntoView({behavior: 'smooth', block: 'start'}); setTimeout(runCompare, 500); };
 
-/* ---------- 차트 ---------- */
+/* ---------- SVG 도우미 ---------- */
 const NS = 'http://www.w3.org/2000/svg';
-const el = (t, a, txt) => {
-  const e = document.createElementNS(NS, t);
-  for (const k in a) e.setAttribute(k, a[k]);
-  if (txt != null) e.textContent = txt;
-  return e;
-};
+const el = (t, a, txt) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; };
 const FONT = 'font-family:inherit';
 
-function drawBins() {
-  const s = document.getElementById('binChart');
-  s.textContent = '';
-  const b = DATA[year].bins, keys = Object.keys(b).map(Number).sort((x, y) => x - y);
-  const max = Math.max(...keys.flatMap(k => b[k]));
-  const X0 = 44, Y0 = 234, W = 456, H = 196, bw = W / keys.length;
+/* ---------- 1. KPI ---------- */
+function drawKpi() {
+  const {O, P, only, over, rev} = CUR;
+  document.getElementById('k1').innerHTML = only.length + '<small>곳</small>';
+  document.getElementById('k2').innerHTML = (only.length / O.length * 100).toFixed(1) + '<small>%</small>';
+  document.getElementById('k3').innerHTML = (sum(only, 'dth') + sum(only, 'se')) + '<small>명</small>';
+  document.getElementById('k3l').innerHTML = '그 지점의 사망·중상자<br>사망 ' + sum(only, 'dth') + ' · 중상 ' + sum(only, 'se');
+  document.getElementById('k4').innerHTML = rev.length + '<small>곳</small>';
+  document.getElementById('eq').innerHTML = S.y + '년 · 반경 ' + S.r + 'm 검산: 보행노인 <b>' + O.length + '곳</b> − 보행자 목록과 겹침 <b>' + over.length +
+    '곳</b> = 노인 목록에만 있음 <b>' + only.length + '곳</b>이다. 보행자 ' + P.length + '곳 중 ' + rev.length + '곳은 보행노인 목록에 없다. ' +
+    '전 연도 ' + fmt(YEARS.reduce((s, y) => s + Y[y].O.length * Y[y].P.length, 0)) + '쌍의 거리를 ' + PREP_MS.toFixed(0) + 'ms 만에 계산했다.';
+}
 
-  /* 임계값 7건 경계 — 이 차트의 핵심 */
-  const i7 = keys.indexOf(7);
-  if (i7 >= 0) {
-    s.appendChild(el('rect', {x: X0 + i7 * bw - 2, y: 22, width: W - i7 * bw + 2,
-      height: Y0 - 22, fill: '#F3F4F6'}));
-    s.appendChild(el('text', {x: X0 + i7 * bw + 4, y: 36,
-      style: FONT + ';font-size:10.5px;font-weight:700;fill:#6B7280'},
-      '일반 기준 임계값 7건 이상'));
+/* ---------- 3. 시뮬레이터 ---------- */
+function simAt(n) { const L = CUR.only.filter(a => a.occ >= n); return {n: L.length, d: sum(L, 'dth'), s: sum(L, 'se')}; }
+function drawSim() {
+  const base = simAt(5), cur = simAt(S.n);
+  document.querySelectorAll('#nSeg button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.n === S.n));
+  document.getElementById('sN').textContent = cur.n + '곳';
+  document.getElementById('sD').textContent = cur.d + '명';
+  document.getElementById('sS').textContent = cur.s + '명';
+  const dd = (c, b) => S.n === 5 ? '현행 기준' : (c - b === 0 ? '5건 기준과 같음' : '5건 기준보다 ' + (b - c) + ' 적음');
+  document.getElementById('sNd').textContent = dd(cur.n, base.n);
+  document.getElementById('sDd').textContent = dd(cur.d, base.d);
+  document.getElementById('sSd').textContent = dd(cur.s, base.s);
+  const b56 = CUR.only.filter(a => a.occ === 5 || a.occ === 6).length;
+  document.getElementById('say').innerHTML = S.n >= 7
+    ? '보행노인 기준을 보행자와 같은 <b>' + S.n + '건</b>으로 맞추면 노인 목록에만 있는 지점은 <b>' + base.n + '곳에서 ' + cur.n + '곳</b>으로 줄어든다. ' +
+      '사라진 ' + (base.n - cur.n) + '곳은 모두 사고 5~' + (S.n - 1) + '건 지점이다. 어긋남은 두 기준의 건수 차이에서 나온다.'
+    : '현재 조건에서 노인 목록에만 있는 ' + base.n + '곳 중 <b>' + b56 + '곳(' + (base.n ? (b56 / base.n * 100).toFixed(1) : 0) + '%)이 사고 5~6건</b> 지점이다. ' +
+      '보행자 기준 7건에 못 미쳐 구조적으로 보행자 목록에 오르지 못하는 구간이다. 7건을 눌러 확인해 보라.';
+  const H = document.getElementById('hbars'); H.textContent = '';
+  const mx = Math.max(1, base.n);
+  const t = document.createElement('div'); t.style.cssText = 'font-size:12.5px;font-weight:700;margin-bottom:6px';
+  t.textContent = S.y + '년 · 반경 ' + S.r + 'm · 기준별 노인 목록에만 있는 지점'; H.appendChild(t);
+  for (const n of NS_) {
+    const v = simAt(n), row = document.createElement('div');
+    row.className = 'hbar' + (n === S.n ? ' cur' : '');
+    row.innerHTML = '<span>' + n + '건 이상' + (n === 5 ? ' (현행)' : n === 7 ? ' (보행자 기준)' : '') + '</span><span class="t"><i style="width:' +
+      (v.n / mx * 100) + '%"></i></span><span class="v">' + v.n + '곳</span>';
+    H.appendChild(row);
   }
+  const uP = CUR.P.length, uAdd = base.n;
+  document.getElementById('uni').innerHTML = '<b>합집합 기준이면</b> 두 목록을 합쳐 한 목록으로 검토한다. 보행자 목록 <b>' + uP + '곳</b>에 노인 목록에만 있는 <b>' +
+    uAdd + '곳</b>이 더해져 검토 대상은 <b>' + (uP + uAdd) + '곳</b>(+' + (uAdd / uP * 100).toFixed(1) + '%)이 된다. ' +
+    '더해지는 곳에서 난 사망 ' + base.d + '명·중상 ' + base.s + '명이 새로 검토 범위에 들어온다. 새 예산이 아니라 검토 순서의 문제다.';
+}
+
+/* ---------- 4. 반경 민감도 ---------- */
+function drawRad() {
+  const t = document.getElementById('radTbl');
+  let h = '<thead><tr><th scope="col">고시연도</th>' + RADII.map(r => '<th scope="col" class="num' + (r === S.r ? ' cur' : '') + '">' + r + 'm</th>').join('') +
+    '<th scope="col">검증값 대조</th></tr></thead><tbody>';
+  let allOk = true;
+  for (const y of YEARS) {
+    const cells = RADII.map(r => Y[y].O.filter(a => a.d > r).length);
+    const ref = SENS && SENS.radius && SENS.radius[y];
+    const ok = ref ? RADII.every((r, i) => ref[r] === cells[i]) : false; allOk = allOk && ok;
+    h += '<tr' + (y === S.y ? ' style="font-weight:700"' : '') + '><th scope="row">' + y + '</th>' +
+      cells.map((v, i) => '<td class="num' + (RADII[i] === S.r ? ' cur' : '') + '">' + v + '</td>').join('') +
+      '<td class="' + (ok ? 'ok' : 'ng') + '">' + (ok ? '4개 반경 일치' : '불일치') + '</td></tr>';
+  }
+  t.innerHTML = h + '</tbody>';
+  t.dataset.ok = allOk;
+  const L = CUR.only, b56 = L.filter(a => a.occ === 5 || a.occ === 6).length;
+  document.getElementById('radCap').innerHTML = '<b>' + S.y + '년 · 반경 ' + S.r + 'm.</b> 반경을 넓히면 겹침이 늘어 노인 목록에만 있는 지점 수는 줄지만, ' +
+    '남는 지점 중 사고 5~6건의 비중은 <b>' + b56 + '/' + L.length + '곳(' + (L.length ? (b56 / L.length * 100).toFixed(1) : 0) + '%)</b>으로 거의 그대로다. 회색 칸은 보행자 기준 7건 이상 구간이다.';
+  drawBins();
+}
+function drawBins() {
+  const s = document.getElementById('binChart'); s.textContent = '';
+  const keys = [3, 4, 5, 6, 7, 8, 9, 10];
+  const b = {}; keys.forEach(k => b[k] = [0, 0]);
+  CUR.only.forEach(a => { const k = Math.min(a.occ, 10); if (b[k]) b[k][0]++; });
+  CUR.over.forEach(a => { const k = Math.min(a.occ, 10); if (b[k]) b[k][1]++; });
+  const max = Math.max(1, ...keys.flatMap(k => b[k]));
+  const X0 = 44, Y0 = 234, W = 456, H = 190, bw = W / keys.length, i7 = keys.indexOf(7);
+  s.appendChild(el('rect', {x: X0 + i7 * bw - 2, y: 22, width: W - i7 * bw + 2, height: Y0 - 22, fill: '#F3F4F6'}));
+  s.appendChild(el('text', {x: X0 + i7 * bw + 4, y: 36, style: FONT + ';font-size:10.5px;font-weight:700;fill:#5B6472'}, '보행자 기준 7건 이상'));
   keys.forEach((k, i) => {
-    const [only, over] = b[k], x = X0 + i * bw;
-    const pair = [[only, C[0]], [over, C[1]]];
-    pair.forEach(([v, col], j) => {
-      const h = max ? v / max * H : 0;
-      if (h > 0) s.appendChild(el('rect', {x: x + 3 + j * (bw / 2 - 3), y: Y0 - h,
-        width: bw / 2 - 6, height: h, fill: col, rx: 3}));
-      if (v > 0) s.appendChild(el('text', {x: x + 3 + j * (bw / 2 - 3) + (bw / 2 - 6) / 2,
-        y: Y0 - h - 5, 'text-anchor': 'middle',
-        style: FONT + ';font-size:10px;font-weight:700;fill:#374151'}, v));
+    const x = X0 + i * bw;
+    [[b[k][0], C[0]], [b[k][1], C[1]]].forEach(([v, col], j) => {
+      const h = v / max * H, bx = x + 3 + j * (bw / 2 - 3);
+      if (h > 0) s.appendChild(el('rect', {x: bx, y: Y0 - h, width: bw / 2 - 6, height: h, fill: col, rx: 3}));
+      if (v > 0) s.appendChild(el('text', {x: bx + (bw / 2 - 6) / 2, y: Y0 - h - 5, 'text-anchor': 'middle', style: FONT + ';font-size:10px;font-weight:700;fill:#374151'}, v));
     });
-    s.appendChild(el('text', {x: x + bw / 2, y: Y0 + 16, 'text-anchor': 'middle',
-      style: FONT + ';font-size:10.5px;fill:#6B7280'}, k === 10 ? '10+' : k + '건'));
+    s.appendChild(el('text', {x: x + bw / 2, y: Y0 + 16, 'text-anchor': 'middle', style: FONT + ';font-size:10.5px;fill:#5B6472'}, k === 10 ? '10+' : k + '건'));
   });
   s.appendChild(el('line', {x1: X0, y1: Y0, x2: X0 + W, y2: Y0, stroke: '#D1D5DB'}));
-  s.appendChild(el('text', {x: 0, y: 14, style: FONT + ';font-size:12px;font-weight:700;fill:#111827'},
-    year + '년 고시 · 사고건수 구간별 지점 수'));
-  [['노인 목록에만 있음', C[0]], ['양쪽 목록에 있음', C[1]]].forEach(([t, c], i) => {
+  s.appendChild(el('text', {x: 0, y: 14, style: FONT + ';font-size:12px;font-weight:700;fill:#111827'}, S.y + '년 · 반경 ' + S.r + 'm · 사고건수 구간별 지점 수'));
+  [['노인 목록에만 있음', C[0]], ['두 목록에 모두 있음', C[1]]].forEach(([t, c], i) => {
     s.appendChild(el('rect', {x: X0 + i * 150, y: 266, width: 9, height: 9, fill: c, rx: 2}));
-    s.appendChild(el('text', {x: X0 + i * 150 + 14, y: 274,
-      style: FONT + ';font-size:10.5px;fill:#374151'}, t));
+    s.appendChild(el('text', {x: X0 + i * 150 + 14, y: 274, style: FONT + ';font-size:10.5px;fill:#374151'}, t));
   });
 }
 
+/* ---------- 5. 추세 ---------- */
 function drawTrend() {
-  const s = document.getElementById('trendChart');
-  s.textContent = '';
-  const X0 = 44, Y0 = 234, W = 456, H = 190;
-  const vals = YEARS.map(y => DATA[y].stat.only / DATA[y].stat.old * 100);
+  const s = document.getElementById('trendChart'); s.textContent = '';
+  const X0 = 44, Y0 = 234, W = 440, H = 190;
+  const vals = YEARS.map(y => Y[y].O.filter(a => a.d > S.r).length / Y[y].O.length * 100);
   const max = Math.ceil(Math.max(...vals) / 10) * 10 + 5;
-  const px = i => X0 + (YEARS.length > 1 ? i * W / (YEARS.length - 1) : W / 2);
-  const py = v => Y0 - v / max * H;
-
+  const px = i => X0 + 10 + i * (W - 20) / (YEARS.length - 1), py = v => Y0 - v / max * H;
   for (let g = 0; g <= max; g += 10) {
     s.appendChild(el('line', {x1: X0, y1: py(g), x2: X0 + W, y2: py(g), stroke: '#F3F4F6'}));
-    s.appendChild(el('text', {x: X0 - 8, y: py(g) + 4, 'text-anchor': 'end',
-      style: FONT + ';font-size:10px;fill:#9CA3AF'}, g + '%'));
+    s.appendChild(el('text', {x: X0 - 8, y: py(g) + 4, 'text-anchor': 'end', style: FONT + ';font-size:10px;fill:#8A919C'}, g + '%'));
   }
-  s.appendChild(el('polyline', {points: YEARS.map((y, i) => px(i) + ',' + py(vals[i])).join(' '),
-    fill: 'none', stroke: C[0], 'stroke-width': 2,
-    'stroke-linejoin': 'round', 'stroke-linecap': 'round'}));
+  s.appendChild(el('polyline', {points: YEARS.map((y, i) => px(i) + ',' + py(vals[i])).join(' '), fill: 'none', stroke: C[0], 'stroke-width': 2, 'stroke-linejoin': 'round'}));
   YEARS.forEach((y, i) => {
-    const cur = y === year;
-    s.appendChild(el('circle', {cx: px(i), cy: py(vals[i]), r: cur ? 6 : 4.5,
-      fill: C[0], stroke: '#fff', 'stroke-width': 2}));
-    s.appendChild(el('text', {x: px(i), y: py(vals[i]) - 13, 'text-anchor': 'middle',
-      style: FONT + ';font-size:10.5px;font-weight:' + (cur ? 800 : 600) + ';fill:#C2410C'},
-      vals[i].toFixed(1) + '%'));
-    s.appendChild(el('text', {x: px(i), y: Y0 + 17, 'text-anchor': 'middle',
-      style: FONT + ';font-size:10.5px;fill:' + (cur ? '#111827' : '#6B7280') +
-      ';font-weight:' + (cur ? 700 : 400)}, y));
+    const cur = y === S.y;
+    s.appendChild(el('circle', {cx: px(i), cy: py(vals[i]), r: cur ? 6 : 4.5, fill: C[0], stroke: '#fff', 'stroke-width': 2}));
+    s.appendChild(el('text', {x: px(i), y: py(vals[i]) - 13, 'text-anchor': 'middle', style: FONT + ';font-size:10.5px;font-weight:' + (cur ? 800 : 600) + ';fill:#C2410C'}, vals[i].toFixed(1) + '%'));
+    s.appendChild(el('text', {x: px(i), y: Y0 + 17, 'text-anchor': 'middle', style: FONT + ';font-size:10.5px;fill:' + (cur ? '#111827' : '#5B6472') + ';font-weight:' + (cur ? 700 : 400)}, y));
   });
   s.appendChild(el('line', {x1: X0, y1: Y0, x2: X0 + W, y2: Y0, stroke: '#D1D5DB'}));
-  s.appendChild(el('text', {x: 0, y: 14, style: FONT + ';font-size:12px;font-weight:700;fill:#111827'},
-    '노인 다발지역 중 일반 목록에 없는 지점의 비율'));
+  s.appendChild(el('text', {x: 0, y: 14, style: FONT + ';font-size:12px;font-weight:700;fill:#111827'}, '보행노인 다발지역 중 보행자 목록에 없는 비율 (반경 ' + S.r + 'm)'));
+  document.getElementById('trendCap').innerHTML = YEARS[0] + '년 ' + vals[0].toFixed(1) + '%에서 ' + YEARS[YEARS.length - 1] + '년 <b>' +
+    vals[vals.length - 1].toFixed(1) + '%</b>. 해마다 고시되는 보행노인 다발지역 가운데 4분의 1 이상이 보행자 목록 밖에 있다.';
 }
 
-/* ---------- 표 ---------- */
-function drawTable() {
-  const rows = DATA[year].pts.filter(p => p[7] === 0 && p[3] > 0)
-    .sort((a, b) => b[3] - a[3] || b[4] - a[4]);
-  document.getElementById('tbl').innerHTML = rows.map(p =>
-    '<tr><td>' + p[5] + '</td><td>' + p[6] + '</td>' +
-    '<td class="num">' + p[2] + '</td><td class="num"><b>' + p[3] + '</b></td>' +
-    '<td class="num">' + p[4] + '</td>' +
-    '<td><span class="tag">일반 목록 미등재</span></td></tr>').join('')
-    || '<tr><td colspan="6" style="color:#6B7280">해당 연도에는 없다.</td></tr>';
+/* ---------- 6. 관할 표 ---------- */
+const sdSel = document.getElementById('sd'), sgSel = document.getElementById('sg'), kdSel = document.getElementById('kd'), qIn = document.getElementById('q');
+function pool() {
+  const {only, over, rev} = CUR;
+  return S.kd === '0' ? only : S.kd === '1' ? over : S.kd === '2' ? rev : only.concat(over, rev);
 }
-
-function render() {
-  const t = DATA[year].stat;
-  document.getElementById('k1').innerHTML = t.only + '<small>곳</small>';
-  document.getElementById('k2').innerHTML = (t.only / t.old * 100).toFixed(1) + '<small>%</small>';
-  document.getElementById('k3').innerHTML = (t.dth + t.se) + '<small>명</small>';
-  document.getElementById('k4').innerHTML = t.rev + '<small>곳</small>';
-  drawMap(); drawBins(); drawTrend(); drawTable();
-  document.querySelectorAll('#yrs button').forEach(b =>
-    b.setAttribute('aria-pressed', b.dataset.y === year));
+function fillSel() {
+  const P = pool();
+  const sds = [...new Set(P.map(a => a.sd))].sort((a, b) => a.localeCompare(b, 'ko'));
+  if (S.sd !== '전국' && !sds.includes(S.sd)) S.sd = '전국';
+  sdSel.innerHTML = ['전국', ...sds].map(v => '<option>' + v + '</option>').join(''); sdSel.value = S.sd;
+  const sgs = S.sd === '전국' ? [] : [...new Set(P.filter(a => a.sd === S.sd).map(a => a.sg))].sort((a, b) => a.localeCompare(b, 'ko'));
+  if (S.sg !== '전체' && !sgs.includes(S.sg)) S.sg = '전체';
+  sgSel.innerHTML = ['전체', ...sgs].map(v => '<option>' + v + '</option>').join(''); sgSel.value = S.sg;
+  sgSel.disabled = S.sd === '전국';
+  kdSel.value = S.kd; qIn.value = S.q;
 }
-
-document.querySelectorAll('.legend button.lg').forEach(b => {
-  b.onclick = () => {
-    const k = +b.dataset.k;
-    shown[k] = !shown[k];
-    b.setAttribute('aria-pressed', shown[k]);
-    drawMap();
-  };
+function rows() {
+  const q = S.q.trim().replace(/\s+/g, '');
+  const r = pool().filter(a => (S.sd === '전국' || a.sd === S.sd) && (S.sg === '전체' || a.sg === S.sg) &&
+    (!q || (a.nm + a.sg).replace(/\s+/g, '').includes(q)));
+  const k = S.sort, d = S.dir;
+  return r.sort((a, b) => {
+    const x = a[k], y = b[k];
+    const c = typeof x === 'string' ? x.localeCompare(y, 'ko') : x - y;
+    return c * d || (b.dth - a.dth) || (b.se - a.se) || (b.occ - a.occ);
+  });
+}
+let ROWS = [];
+function drawTbl() {
+  ROWS = rows();
+  document.querySelectorAll('thead th[data-s]').forEach(th => th.setAttribute('aria-sort', th.dataset.s === S.sort ? (S.dir < 0 ? 'descending' : 'ascending') : 'none'));
+  const where = S.sd === '전국' ? '전국' : S.sd + (S.sg === '전체' ? '' : ' ' + S.sg);
+  document.getElementById('sdn').innerHTML = S.y + '년 · 반경 ' + S.r + 'm · ' + where + ' · ' + (S.kd === 'a' ? '전체 구분' : KIND[S.kd]) + ' ' +
+    '<b>' + ROWS.length + '곳</b> · 사망 <b>' + sum(ROWS, 'dth') + '명</b> · 중상 <b>' + sum(ROWS, 'se') + '명</b> · 사고 ' + sum(ROWS, 'occ') + '건' + (S.q ? ' · 검색 "' + S.q + '"' : '');
+  const tb = document.getElementById('sdt');
+  tb.innerHTML = ROWS.map((a, i) => {
+    const k = kindOf(a);
+    return '<tr class="go" tabindex="0" data-i="' + i + '" aria-label="' + a.nm + ', 지도에서 보기"><td>' + a.sd + ' ' + a.sg + '</td><td>' + a.nm + '</td>' +
+      '<td class="num">' + a.occ + '</td><td class="num">' + (a.dth ? '<b>' + a.dth + '</b>' : 0) + '</td><td class="num">' + a.se + '</td>' +
+      '<td class="num hide-m">' + (a.d === Infinity ? '-' : fmt(Math.round(a.d)) + 'm') + '</td><td><span class="tag t' + k + '">' + KIND[k] + '</span></td></tr>';
+  }).join('') || '<tr><td colspan="7" style="color:#5B6472">조건에 맞는 지점이 없다.</td></tr>';
+}
+document.getElementById('sdt').addEventListener('click', e => { const tr = e.target.closest('tr[data-i]'); if (tr) goTo(ROWS[+tr.dataset.i]); });
+document.getElementById('sdt').addEventListener('keydown', e => {
+  const tr = e.target.closest('tr[data-i]'); if (!tr) return;
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goTo(ROWS[+tr.dataset.i]); }
+  if (e.key === 'ArrowDown' && tr.nextElementSibling) { e.preventDefault(); tr.nextElementSibling.focus(); }
+  if (e.key === 'ArrowUp' && tr.previousElementSibling) { e.preventDefault(); tr.previousElementSibling.focus(); }
 });
+document.querySelectorAll('thead th[data-s] button').forEach(b => b.onclick = () => {
+  const k = b.parentElement.dataset.s;
+  if (S.sort === k) S.dir = -S.dir; else { S.sort = k; S.dir = (k === 'sgg' || k === 'nm' || k === 'd') ? 1 : -1; }
+  drawTbl(); writeHash();
+});
+sdSel.onchange = () => { S.sd = sdSel.value; S.sg = '전체'; fillSel(); drawTbl(); writeHash(); };
+sgSel.onchange = () => { S.sg = sgSel.value; drawTbl(); writeHash(); };
+kdSel.onchange = () => { S.kd = kdSel.value; fillSel(); drawTbl(); writeHash(); };
+qIn.oninput = () => { S.q = qIn.value; drawTbl(); writeHash(); };
+document.getElementById('csv').onclick = () => {
+  const q = v => '"' + String(v).replace(/"/g, '""') + '"';
+  const lines = [['고시연도', '매칭반경m', '시도', '시군구', '지점명', '사고건수', '사망', '중상', '상대목록최근접m', '경도', '위도', '구분'].join(',')]
+    .concat(ROWS.map(a => [S.y, S.r, a.sd, a.sg, a.nm, a.occ, a.dth, a.se, a.d === Infinity ? '' : Math.round(a.d), a.lo, a.la, KIND[kindOf(a)]].map(q).join(',')));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\r\n')], {type: 'text/csv'}));
+  a.download = '사고다발_대조_' + S.y + '_' + S.r + 'm_' + S.sd + (S.sg === '전체' ? '' : '_' + S.sg) + '.csv'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
 
+/* ---------- 조건 막대 ---------- */
 const yrs = document.getElementById('yrs');
-YEARS.forEach(y => {
-  const b = document.createElement('button');
-  b.textContent = y + '년 고시'; b.dataset.y = y;
-  b.onclick = () => { year = y; render(); };
-  yrs.appendChild(b);
-});
-render();
+YEARS.forEach(y => { const b = document.createElement('button'); b.type = 'button'; b.textContent = y; b.dataset.y = y;
+  b.setAttribute('aria-label', y + '년 고시'); b.onclick = () => { S.y = y; render(); }; yrs.appendChild(b); });
+const nSeg = document.getElementById('nSeg');
+NS_.forEach(n => { const b = document.createElement('button'); b.type = 'button'; b.dataset.n = n; b.textContent = n + '건';
+  b.onclick = () => { S.n = n; drawSim(); writeHash(); }; nSeg.appendChild(b); });
+const rad = document.getElementById('rad'), radOut = document.getElementById('radOut');
+rad.oninput = () => { S.r = RADII[+rad.value]; render(); };
+document.querySelectorAll('.legend button.lg').forEach(b => b.onclick = () => {
+  const k = +b.dataset.k; shown[k] = !shown[k]; b.setAttribute('aria-pressed', shown[k]); drawMap(); });
+document.getElementById('share').onclick = async () => {
+  if (!RUN) runCompare(); writeHash(); const msg = document.getElementById('shareMsg');
+  try { await navigator.clipboard.writeText(location.href); msg.textContent = '복사했다. 받는 사람도 같은 조건으로 연다.'; }
+  catch (e) { msg.textContent = '주소창의 링크를 복사하면 같은 조건으로 열린다.'; }
+  setTimeout(() => msg.textContent = '', 4000);
+};
+window.addEventListener('hashchange', () => { readHash(); render(); });
+
+(function hero() {
+  const y = YEARS[YEARS.length - 1], h = Y[y].O, only = h.filter(a => a.d > 150);
+  document.getElementById('hN').textContent = only.length + '곳';
+  document.getElementById('hA').innerHTML = only.length + '<small>곳</small>';
+  document.getElementById('hB').innerHTML = (only.length / h.length * 100).toFixed(1) + '<small>%</small>';
+  document.getElementById('hC').innerHTML = sum(only, 'dth') + '<small>명</small>';
+  document.getElementById('hCl').textContent = '그 지점의 사망자 (중상 ' + sum(only, 'se') + '명)';
+  document.getElementById('go').textContent = '지도에서 ' + only.length + '곳 열어 보기';
+})();
+function render() {
+  CUR = classify(S.y, S.r);
+  CUR.only.forEach(a => a.sgg = a.sd + ' ' + a.sg); CUR.over.forEach(a => a.sgg = a.sd + ' ' + a.sg); CUR.rev.forEach(a => a.sgg = a.sd + ' ' + a.sg);
+  document.querySelectorAll('#yrs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.y === S.y));
+  rad.value = RADII.indexOf(S.r); radOut.value = S.r + 'm'; rad.setAttribute('aria-valuetext', S.r + 'm');
+  drawKpi(); drawMap(); drawSim(); drawRad(); drawTrend(); fillSel(); drawTbl(); writeHash();
+  document.getElementById('runbox').hidden = RUN; document.getElementById('counter').hidden = !RUN;
+  document.getElementById('cN').textContent = CUR.only.length;
+  showOrig(RUN ? (SEL && SEL.id.startsWith(S.y) ? Y[S.y][SEL.src].find(a => a.id === SEL.id) : pickDefault()) : null);
+}
+readHash(); render();
 </script>
 </body>
 </html>
