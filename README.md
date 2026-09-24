@@ -7,7 +7,7 @@
 보행노인 · 보행자 교통사고 다발지역 고시의 **전국 공간 대조**
 
 [![데모](https://img.shields.io/badge/%F0%9F%97%BA%20%EB%8D%B0%EB%AA%A8-link.chlee.dev-C2410C?style=for-the-badge)](https://link.chlee.dev/tnk57b.html)
-[![영상](https://img.shields.io/badge/%E2%96%B6%20%EC%8B%9C%EC%97%B0%EC%98%81%EC%83%81-96%EC%B4%88-7C3AED?style=for-the-badge)](https://link.chlee.dev/st74k8.mp4)
+[![영상](https://img.shields.io/badge/%E2%96%B6%20%EC%8B%9C%EC%97%B0%EC%98%81%EC%83%81-96%EC%B4%88-7C3AED?style=for-the-badge)](https://link.chlee.dev/28169z.mp4)
 [![Python](https://img.shields.io/badge/Python-3.12-1D4ED8?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![의존성](https://img.shields.io/badge/%EC%99%B8%EB%B6%80%20%EC%9D%98%EC%A1%B4%EC%84%B1-0-16A34A?style=for-the-badge)](#실행)
 [![License](https://img.shields.io/badge/License-MIT-64748B?style=for-the-badge)](#라이선스)
@@ -114,7 +114,7 @@
 ## 웹 데모와 시연 영상
 
 ### 데모: **https://link.chlee.dev/tnk57b.html** (로그인·설치 불필요)
-### 영상: **https://link.chlee.dev/st74k8.mp4** (96초)
+### 영상: **https://link.chlee.dev/28169z.mp4** (96초)
 
 <div align="center">
 <img src="figures/demo-home.png" width="49%">
